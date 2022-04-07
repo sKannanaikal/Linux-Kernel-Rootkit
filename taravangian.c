@@ -5,8 +5,6 @@
 #include <linux/version.h>
 #include <linux/namei.h>
 #include "support_file.h"
-//TODO create your own ftrace helper file
-
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Odium");
